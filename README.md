@@ -16,6 +16,6 @@ $ pip install -r requirements.txt
 
 ## Datasets
 Please use consistent train-val-test split when comparing with other methods.
-- [BCI_competition_IV2a](https://www.bbci.de/competition/iv/) - acc 78.66% (hold out)
+- [BCI_competition_IV2a](https://www.bbci.de/competition/iv/) - acc 82.97%
 
 
