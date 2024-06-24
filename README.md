@@ -1,18 +1,9 @@
-# EEG-Conformer
+# EEG TCNTransformer
 
-### EEG Conformer: Convolutional Transformer for EEG Decoding and Visualization [[Paper](https://ieeexplore.ieee.org/document/9991178)]
-##### Core idea: spatial-temporal conv + pooling + self-attention
-
-### News
-🎉🎉🎉 We've joined in [braindecode](https://braindecode.org/stable/index.html) toolbox. Use [here](https://braindecode.org/stable/generated/braindecode.models.EEGConformer.html) for detailed info.
-
-
-Thanks to [Bru](https://github.com/bruAristimunha) and colleagues for helping with the modifications.
+##### Core idea: EEGNet + TCN + self-attention
 
 ## Abstract
 ![Network Architecture](/visualization/Fig1.png)
-
-```
 
 ### Installing
 Navigate to EEG-Conformer's main folder and create the environment using Miniconda3:
