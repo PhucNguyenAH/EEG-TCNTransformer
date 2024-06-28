@@ -1,26 +1,18 @@
 """
-EEG Conformer 
+Authors: Anh Hoang Phuc Nguyen
 
-Convolutional Transformer for EEG decoding
-
-Couple CNN and Transformer in a concise manner with amazing results
+EEG-TCNTransformer code
 """
 # remember to change paths
 
-import argparse
 import os
 gpus = [0]
 os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(map(str, gpus))
 import numpy as np
 import math
-import glob
 import random
-import itertools
 import datetime
-import time
-import datetime
-import sys
 import scipy.io
 import scipy.io as sio
 import scipy.signal as signal
@@ -29,7 +21,6 @@ import pandas as pd
 import torchvision.transforms as transforms
 from torchvision.utils import save_image, make_grid
 
-from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torchsummary import summary
 import torch.autograd as autograd
@@ -43,20 +34,16 @@ from torch.nn.utils import weight_norm
 
 from base import EEGModuleMixin, deprecated_args
 
-from torch.utils.data import Dataset
 from PIL import Image
 import torchvision.transforms as transforms
-from sklearn.decomposition import PCA
 
 import torch
 import torch.nn.functional as F
-import matplotlib.pyplot as plt
 
 from torch import nn
 from torch import Tensor
 from PIL import Image
-from torchvision.transforms import Compose, Resize, ToTensor
-from einops import rearrange, reduce, repeat
+from einops import rearrange
 from einops.layers.torch import Rearrange, Reduce
 # from common_spatial_pattern import csp
 
@@ -580,12 +567,12 @@ class ExP():
         data_return = signal.sosfilt(sos, data_return, axis=2)
         return data_return, class_return[0:NO_valid_trial]
 
-    def get_source_data(self,  order, rs):
+    def get_source_data(self,order=2,rs=10): 
 
         # train data
         path = self.root + 'A0%dT.mat' % self.nSub
-        # self.train_data, self.train_label = self.get_data(path)
-        self.train_data, self.train_label = self.get_data_filter(path, order, rs)
+        self.train_data, self.train_label = self.get_data(path)
+        # self.train_data, self.train_label = self.get_data_filter(path, order, rs)
 
         self.train_data = np.expand_dims(self.train_data, axis=1)
         self.train_label = np.transpose(self.train_label)
@@ -598,8 +585,8 @@ class ExP():
 
         # test data
         path = self.root + 'A0%dE.mat' % self.nSub
-        # self.test_data, self.test_label = self.get_data(path)
-        self.test_data, self.test_label = self.get_data_filter(path, order, rs)
+        self.test_data, self.test_label = self.get_data(path)
+        # self.test_data, self.test_label = self.get_data_filter(path, order, rs)
 
         self.test_data = np.expand_dims(self.test_data, axis=1)
         self.test_label = np.transpose(self.test_label)
@@ -618,9 +605,9 @@ class ExP():
         return self.allData, self.allLabel, self.testData, self.testLabel
 
 
-    def train(self, order, rs):
+    def train(self):
 
-        img, label, test_data, test_label = self.get_source_data(order, rs)
+        img, label, test_data, test_label = self.get_source_data()
 
         img = torch.from_numpy(img)
         label = torch.from_numpy(label - 1)
@@ -694,7 +681,7 @@ class ExP():
                     bestAcc = acc
                     Y_true = test_label
                     Y_pred = y_pred
-                    # torch.save(self.model.module.state_dict(), os.path.join(self.result_path, f'model{self.nSub}.pth'))
+                    torch.save(self.model.module.state_dict(), os.path.join(self.result_path, f'model{self.nSub}.pth'))
         averAcc = averAcc / num
         print('The average accuracy is:', averAcc)
         print('The best accuracy is:', bestAcc)
@@ -707,61 +694,41 @@ class ExP():
 
 def main():
     seed_n_lst = [481,343,222,1215,1817,1278,940,1067,806]
-    # LOGGER_FILE = "logTCNTransformer.csv"
-    LOGGER_FILE = "logTCNTransformer_filter.csv"
-    df = pd.read_csv(LOGGER_FILE,index_col=False)
-    log_index = len(df)
-    for tcn in range(1,4):
-        for emb in range(10,101,10):
-            result_path = f'result/results_TCNTransformer_tcn_{tcn}_{emb}'
-    # for rs in [10,50,100]:
-    #     for order in range(1,11):
-    #         result_path = f'result_filter/results_TCNTransformer_filter_{order}_{rs}'
-            if not os.path.exists(result_path):
-                os.makedirs(result_path)
-            else: continue
-            best = 0
-            aver = 0
-            log_row = [tcn,emb]
-            # log_row = [order,rs]
-            result_write = open(os.path.join(result_path,"sub_result.txt"), "w")
-            for i in range(9):
-                starttime = datetime.datetime.now()
-                # seed_n = np.random.randint(2024)
-                seed_n = seed_n_lst[i]
-                print('seed is ' + str(seed_n))
-                random.seed(seed_n)
-                np.random.seed(seed_n)
-                torch.manual_seed(seed_n)
-                torch.cuda.manual_seed(seed_n)
-                torch.cuda.manual_seed_all(seed_n)
+    result_path = f'result'
+    if not os.path.exists(result_path):
+        os.makedirs(result_path)
+    best = 0
+    aver = 0
+    result_write = open(os.path.join(result_path,"sub_result.txt"), "w")
+    for i in range(9):
+        starttime = datetime.datetime.now()
+        seed_n = seed_n_lst[i]
+        print('seed is ' + str(seed_n))
+        random.seed(seed_n)
+        np.random.seed(seed_n)
+        torch.manual_seed(seed_n)
+        torch.cuda.manual_seed(seed_n)
+        torch.cuda.manual_seed_all(seed_n)
 
 
-                print('Subject %d' % (i+1))
-                exp = ExP(i + 1,result_path,tcn, emb)
-                bestAcc, averAcc, Y_true, Y_pred = exp.train()
-                # exp = ExP(i + 1,result_path)
-                # bestAcc, averAcc, Y_true, Y_pred = exp.train(order,rs)
-                print('THE BEST ACCURACY IS ' + str(bestAcc))
-                result_write.write('Subject ' + str(i + 1) + ' : ' + 'Seed is: ' + str(seed_n) + "\n")
-                result_write.write('Subject ' + str(i + 1) + ' : ' + 'The best accuracy is: ' + str(bestAcc) + "\n")
-                result_write.write('Subject ' + str(i + 1) + ' : ' + 'The average accuracy is: ' + str(averAcc) + "\n")
+        print('Subject %d' % (i+1))
+        exp = ExP(i + 1,result_path)
+        bestAcc, averAcc, Y_true, Y_pred = exp.train()
+        print('THE BEST ACCURACY IS ' + str(bestAcc))
+        result_write.write('Subject ' + str(i + 1) + ' : ' + 'Seed is: ' + str(seed_n) + "\n")
+        result_write.write('Subject ' + str(i + 1) + ' : ' + 'The best accuracy is: ' + str(bestAcc) + "\n")
+        result_write.write('Subject ' + str(i + 1) + ' : ' + 'The average accuracy is: ' + str(averAcc) + "\n")
 
-                endtime = datetime.datetime.now()
-                print('subject %d duration: '%(i+1) + str(endtime - starttime))
-                best = best + bestAcc
-                aver = aver + averAcc
-                log_row.append(bestAcc)
+        endtime = datetime.datetime.now()
+        print('subject %d duration: '%(i+1) + str(endtime - starttime))
+        best = best + bestAcc
+        aver = aver + averAcc
 
-            best = best / 9
-            aver = aver / 9
-            log_row.append(best)
-            df.loc[log_index] = log_row
-            log_index+=1
-            df.to_csv(LOGGER_FILE,index=False)
-            result_write.write('**The average Best accuracy is: ' + str(best) + "\n")
-            result_write.write('The average Aver accuracy is: ' + str(aver) + "\n")
-            result_write.close()
+    best = best / 9
+    aver = aver / 9
+    result_write.write('**The average Best accuracy is: ' + str(best) + "\n")
+    result_write.write('The average Aver accuracy is: ' + str(aver) + "\n")
+    result_write.close()
 
 
 if __name__ == "__main__":
