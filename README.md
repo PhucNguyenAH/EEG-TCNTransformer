@@ -18,6 +18,26 @@ $ pip install -r requirements.txt
 
 ## Datasets
 Please use consistent train-val-test split when comparing with other methods.
-- [BCI_competition_IV2a](https://www.bbci.de/competition/iv/) - acc 82.97%
+- [BCI_competition_IV2a](https://bnci-horizon-2020.eu/database/data-sets) - acc 82.97%
 
-
+Download the official BCI Competition IV (from A01T, A01E to A09T, A09E) and organize the downloaded files as follows:
+``` BCIIV2a
+│── A01T
+│── A01E
+│── A02T
+│── A02E
+│── A03T
+│── A03E
+│── A04T
+│── A04E
+│── A05T
+│── A05E
+│── A06T
+│── A06E
+│── A07T
+│── A07E
+│── A08T
+│── A08E
+│── A09T
+│── A09E
+```
