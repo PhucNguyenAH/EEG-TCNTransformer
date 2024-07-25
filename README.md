@@ -23,22 +23,22 @@ Please use consistent train-val-test split when comparing with other methods.
 Download the official BCI Competition IV (from A01T, A01E to A09T, A09E) and organize the downloaded files as follows:
 ``` 
 BCIIV2a
-│── A01T
-│── A01E
-│── A02T
-│── A02E
-│── A03T
-│── A03E
-│── A04T
-│── A04E
-│── A05T
-│── A05E
-│── A06T
-│── A06E
-│── A07T
-│── A07E
-│── A08T
-│── A08E
-│── A09T
-│── A09E
+│── A01T.mat
+│── A01E.mat
+│── A02T.mat
+│── A02E.mat
+│── A03T.mat
+│── A03E.mat
+│── A04T.mat
+│── A04E.mat
+│── A05T.mat
+│── A05E.mat
+│── A06T.mat
+│── A06E.mat
+│── A07T.mat
+│── A07E.mat
+│── A08T.mat
+│── A08E.mat
+│── A09T.mat
+│── A09E.mat
 ```
