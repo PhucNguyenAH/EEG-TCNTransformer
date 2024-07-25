@@ -428,7 +428,7 @@ class ExP():
         self.result_path=result_path
 
         self.start_epoch = 0
-        self.root = '../BCIIV2a/'
+        self.root = 'BCIIV2a/'
         
         self.log_write = open(os.path.join(self.result_path,"log_subject%d.txt" % self.nSub), "w")
 
