@@ -42,3 +42,9 @@ BCIIV2a
 │── A09T.mat
 │── A09E.mat
 ```
+
+## Train
+Training with the following scripts:
+```
+python TCNTransformer.py
+```
