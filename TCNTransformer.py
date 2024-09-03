@@ -402,7 +402,7 @@ class ClassificationHead(nn.Sequential):
         return x, out
 
 
-class TCN_Transformer(nn.Sequential):
+class TCNTransformer(nn.Sequential):
     def __init__(self, tcn_block=3,emb_size=70, depth=6, n_classes=4, **kwargs):
         super().__init__(
             # PatchEmbedding(emb_size), 
@@ -440,7 +440,7 @@ class ExP():
         self.criterion_l2 = torch.nn.MSELoss().cuda()
         self.criterion_cls = torch.nn.CrossEntropyLoss().cuda()
 
-        self.model = TCN_Transformer(tcn_block=tcn_block,emb_size=emb_size).cuda()
+        self.model = TCNTransformer(tcn_block=tcn_block,emb_size=emb_size).cuda()
         self.model = nn.DataParallel(self.model, device_ids=[i for i in range(len(gpus))])
         self.model = self.model.cuda()
 
